@@ -5,9 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -35,15 +38,27 @@ public class MainActivity extends AppCompatActivity {
 
         Call call =client.newCall(request);
         //calling the request to get the data
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
-        try {
-            Response response =call.execute();
-            if(response.isSuccessful()){
-                Log.v(TAG,response.body().string());
             }
-        } catch (IOException e) {
-            Log.e(TAG,"IO exception ",e);
-        }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                try {
+
+                    if(response.isSuccessful()){
+                        Log.v(TAG,response.body().string());
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG,"IO exception ",e);
+                }
+
+            }
+        });
+
+
 
 
     }
