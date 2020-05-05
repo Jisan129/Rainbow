@@ -2,8 +2,12 @@ package com.example.rainbow;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,36 +34,72 @@ public class MainActivity extends AppCompatActivity {
         String longitude="90.4203";
         String URL="https://api.darksky.net/forecast/"+ key+"/"+latitude+","+longitude;
 
+        if(isNetworkAvailable()&&isNetworkAvailable()) {
+            OkHttpClient client = new OkHttpClient();
+            //RequestBody requestBody=RequestBody.create(json,JSON)
+            Request request = new Request.Builder().url(URL).build();
+            //sending our request
 
-        OkHttpClient client=new OkHttpClient();
-        //RequestBody requestBody=RequestBody.create(json,JSON)
-        Request request=new Request.Builder().url(URL).build();
-        //sending our request
+            Call call = client.newCall(request);
+            //calling the request to get the data
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
-        Call call =client.newCall(request);
-        //calling the request to get the data
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                try {
-
-                    if(response.isSuccessful()){
-                        Log.v(TAG,response.body().string());
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG,"IO exception ",e);
                 }
 
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    try {
+                        Log.v(TAG, response.body().string());
+                        if (response.isSuccessful()) {
+
+                        } else {
+                            alertDialogFragment();
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "IO exception ", e);
+                    }
+
+                }
+            });
+
+        }
+        else {
+            Toast.makeText(this,"Network is unavailable",Toast.LENGTH_LONG).show();
+        }
+
+
+    }
+
+    private boolean isNetworkAvailable() {
+        //check network availability if the network is available then
+        //this code will run otherwise it does not make sense to run this
+        //and crash this
+
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkCapabilities capabilities = manager.getNetworkCapabilities(manager.getActiveNetwork());
+        boolean isAvailable = false;
+
+        if (capabilities!= null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                isAvailable = true;
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                isAvailable = true;
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                isAvailable = true;
             }
-        });
+        }
+           return isAvailable;
+    }
 
 
+    private void alertDialogFragment() {
+        //calling the alertDialog fragment
 
+           AndroidDialogFragment dialogFragment=new AndroidDialogFragment();
 
+           dialogFragment.show(getFragmentManager(),"Error dialog");
     }
 }
