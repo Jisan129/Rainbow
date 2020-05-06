@@ -10,6 +10,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -23,12 +25,14 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
+    private CurrentWeather currentWeather=new CurrentWeather();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         String key="2286dd2204e405b21ad2dec95e789d49";  /* Declaring our variables,secret key,latitude and longitude*/
         String latitude= "24.7471";
         String longitude="90.4203";
@@ -50,15 +54,21 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                    try {
-                        Log.v(TAG, response.body().string());
-                        if (response.isSuccessful()) {
 
+                    try {
+                        String JsonData=response.body().string();
+                        //declared to reuse code
+                        Log.v(TAG, JsonData);
+                        if (response.isSuccessful()) {
+                           currentWeather= getCurrentDetails(JsonData);
                         } else {
                             alertDialogFragment();
                         }
                     } catch (IOException e) {
                         Log.e(TAG, "IO exception ", e);
+                    }
+                    catch (JSONException e){
+                        Log.e(TAG,"Json Exception",e);
                     }
 
                 }
@@ -70,6 +80,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private CurrentWeather getCurrentDetails(String jsonData) throws JSONException {
+        JSONObject forecast =new JSONObject(jsonData);
+        //Making JSON object
+        String timezone =forecast.getString("timezone");
+        //getting timezone
+        Log.i(TAG,"TimeZone: "+timezone);
+        //showing timezone in logcat
+        return null;
     }
 
     private boolean isNetworkAvailable() {
