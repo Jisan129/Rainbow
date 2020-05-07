@@ -6,7 +6,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TextView darksky=findViewById(R.id.legal);
+        darksky.setMovementMethod(LinkMovementMethod.getInstance());
 
 
         String key="2286dd2204e405b21ad2dec95e789d49";  /* Declaring our variables,secret key,latitude and longitude*/
@@ -82,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     private CurrentWeather getCurrentDetails(String jsonData) throws JSONException {
         JSONObject forecast =new JSONObject(jsonData);
         JSONObject currently=forecast.getJSONObject("currently");
@@ -97,6 +102,10 @@ public class MainActivity extends AppCompatActivity {
         currentWeather.setLocationLebel("Mymensingh ,Dhaka ,Bangladesh");
         currentWeather.setPrecipChance(currently.getDouble("precipProbability"));
         currentWeather.setTimezone(timezone);
+       //modified
+       // String iconId=currently.getString("icon");
+       // getIcon(iconId);
+
 
         Log.d(TAG,currentWeather.TimeFormat());
         return currentWeather;
