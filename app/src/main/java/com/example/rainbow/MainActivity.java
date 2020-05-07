@@ -84,12 +84,22 @@ public class MainActivity extends AppCompatActivity {
 
     private CurrentWeather getCurrentDetails(String jsonData) throws JSONException {
         JSONObject forecast =new JSONObject(jsonData);
+        JSONObject currently=forecast.getJSONObject("currently");
         //Making JSON object
         String timezone =forecast.getString("timezone");
-        //getting timezone
         Log.i(TAG,"TimeZone: "+timezone);
-        //showing timezone in logcat
-        return null;
+        CurrentWeather currentWeather=new CurrentWeather();
+        currentWeather.setSummary(currently.getString("summary"));
+        //currentWeather.setPrecipChance(currently.getDouble("pr"));
+        currentWeather.setTemperature(currently.getDouble("temperature"));
+        currentWeather.setTime(currently.getLong("time"));
+        currentWeather.setIcon(currently.getString("icon"));
+        currentWeather.setLocationLebel("Mymensingh ,Dhaka ,Bangladesh");
+        currentWeather.setPrecipChance(currently.getDouble("precipProbability"));
+        currentWeather.setTimezone(timezone);
+
+        Log.d(TAG,currentWeather.TimeFormat());
+        return currentWeather;
     }
 
     private boolean isNetworkAvailable() {
