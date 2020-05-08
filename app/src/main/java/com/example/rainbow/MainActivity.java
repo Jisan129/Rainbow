@@ -1,6 +1,7 @@
 package com.example.rainbow;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -10,6 +11,8 @@ import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.rainbow.databinding.ActivityMainBinding;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        final ActivityMainBinding binding= DataBindingUtil.setContentView(MainActivity.this,R.layout.activity_main);
         TextView darksky=findViewById(R.id.legal);
         darksky.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -65,6 +68,14 @@ public class MainActivity extends AppCompatActivity {
                         Log.v(TAG, JsonData);
                         if (response.isSuccessful()) {
                            currentWeather= getCurrentDetails(JsonData);
+                           CurrentWeather displayweather=new CurrentWeather(
+                                   currentWeather.getLocationLebel(),currentWeather.getIcon(),
+                                   currentWeather.getTime(),currentWeather.getTemperature(),currentWeather.getPrecipChance(),
+                                   currentWeather.getSummary(),currentWeather.getTimezone()
+                           );
+
+                        binding.setWeather(displayweather);
+
                         } else {
                             alertDialogFragment();
                         }
