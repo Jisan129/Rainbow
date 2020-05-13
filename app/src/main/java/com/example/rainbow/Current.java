@@ -1,11 +1,13 @@
 package com.example.rainbow;
 
 
+import com.example.rainbow.R;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class CurrentWeather {
+public class Current {
 
     private String locationLebel;
     private String icon;
@@ -15,10 +17,11 @@ public class CurrentWeather {
     private String summary;
     private String timezone;
 
-    public CurrentWeather() {
+
+    public Current() {
     }
 
-    public CurrentWeather(String locationLebel, String icon, long time, double temperature, double precipChance, String summary, String timezone) {
+    public Current(String locationLebel, String icon, long time, double temperature, double precipChance, String summary, String timezone) {
         this.locationLebel = locationLebel;
         this.icon = icon;
         this.time = time;
@@ -57,7 +60,7 @@ public class CurrentWeather {
         //clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night
 
 
-        int id=R.drawable.clear_day;
+        int id= R.drawable.clear_day;
 
         switch (icon){
             case "clear-day":

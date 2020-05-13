@@ -4,11 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,20 +26,23 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private CurrentWeather currentWeather=new CurrentWeather();
+    private Forecast forecast=new Forecast();
+    private ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final ActivityMainBinding binding= DataBindingUtil.setContentView(MainActivity.this,R.layout.activity_main);
+
+        final ActivityMainBinding binding= DataBindingUtil.setContentView(MainActivity.this, R.layout.activity_main);
         TextView darksky=findViewById(R.id.legal);
         darksky.setMovementMethod(LinkMovementMethod.getInstance());
+        imageView=findViewById(R.id.imageid);
+
 
 
         String key="2286dd2204e405b21ad2dec95e789d49";  /* Declaring our variables,secret key,latitude and longitude*/
@@ -67,14 +72,25 @@ public class MainActivity extends AppCompatActivity {
                         //declared to reuse code
                         Log.v(TAG, JsonData);
                         if (response.isSuccessful()) {
-                           currentWeather= getCurrentDetails(JsonData);
-                           CurrentWeather displayweather=new CurrentWeather(
-                                   currentWeather.getLocationLebel(),currentWeather.getIcon(),
-                                   currentWeather.getTime(),currentWeather.getTemperature(),currentWeather.getPrecipChance(),
-                                   currentWeather.getSummary(),currentWeather.getTimezone()
+                           forecast= parseForcastData(JsonData);
+                           Current current=forecast.getCurrent();
+                           final Current displayweather=new Current(
+                                   current.getLocationLebel(), current.getIcon(),
+                                   current.getTime(), current.getTemperature(), current.getPrecipChance(),
+                                   current.getSummary(), current.getTimezone()
                            );
 
                         binding.setWeather(displayweather);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Drawable drawable=getResources().getDrawable(displayweather.getIconId());
+                                imageView.setImageDrawable(drawable);
+                            }
+                        });
+
+
+
 
                         } else {
                             alertDialogFragment();
@@ -97,29 +113,36 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private Forecast parseForcastData(String jsonData) throws JSONException {
+        Forecast forecast= new Forecast();
+        forecast.setCurrent(getCurrentDetails(jsonData));
 
-    private CurrentWeather getCurrentDetails(String jsonData) throws JSONException {
+        return forecast;
+    }
+
+
+    private Current getCurrentDetails(String jsonData) throws JSONException {
         JSONObject forecast =new JSONObject(jsonData);
         JSONObject currently=forecast.getJSONObject("currently");
         //Making JSON object
         String timezone =forecast.getString("timezone");
         Log.i(TAG,"TimeZone: "+timezone);
-        CurrentWeather currentWeather=new CurrentWeather();
-        currentWeather.setSummary(currently.getString("summary"));
+        Current current =new Current();
+        current.setSummary(currently.getString("summary"));
         //currentWeather.setPrecipChance(currently.getDouble("pr"));
-        currentWeather.setTemperature(currently.getDouble("temperature"));
-        currentWeather.setTime(currently.getLong("time"));
-        currentWeather.setIcon(currently.getString("icon"));
-        currentWeather.setLocationLebel("Mymensingh ,Dhaka ,Bangladesh");
-        currentWeather.setPrecipChance(currently.getDouble("precipProbability"));
-        currentWeather.setTimezone(timezone);
+        current.setTemperature(currently.getDouble("temperature"));
+        current.setTime(currently.getLong("time"));
+        current.setIcon(currently.getString("icon"));
+        current.setLocationLebel("Mymensingh ,Dhaka ,Bangladesh");
+        current.setPrecipChance(currently.getDouble("precipProbability"));
+        current.setTimezone(timezone);
        //modified
        // String iconId=currently.getString("icon");
        // getIcon(iconId);
 
 
-        Log.d(TAG,currentWeather.TimeFormat());
-        return currentWeather;
+        Log.d(TAG, current.TimeFormat());
+        return current;
     }
 
     private boolean isNetworkAvailable() {
